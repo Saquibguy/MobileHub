@@ -1,0 +1,26 @@
+const mongoose = require("mongoose");
+
+const sellerSchema = new mongoose.Schema(
+  {
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, unique: true },
+    storeName: { type: String, required: true, trim: true },
+    description: { type: String, default: "" },
+    logo: { type: String, default: "" },
+    phone: { type: String, default: "" },
+    email: { type: String, default: "" },
+    approvalStatus: {
+      type: String,
+      enum: ["PENDING", "APPROVED", "REJECTED", "SUSPENDED"],
+      default: "PENDING",
+    },
+    bankInfo: {
+      accountHolder: String,
+      accountNumberMasked: String, // never store raw sensitive bank data unmasked in demo
+      ifsc: String,
+    },
+    rating: { type: Number, default: 0, min: 0, max: 5 },
+  },
+  { timestamps: true }
+);
+
+module.exports = mongoose.model("Seller", sellerSchema);

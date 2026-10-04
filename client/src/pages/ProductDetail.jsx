@@ -6,6 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import { RatingStars, PriceDisplay } from "../components/Common";
 import ProductCard from "../components/ProductCard";
 import { Heart, Minus, Plus } from "lucide-react";
+import { getImageUrl } from "../utils/getImageUrl";
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -40,7 +41,7 @@ export default function ProductDetail() {
     <div className="max-w-5xl mx-auto px-4 py-6 pb-24 md:pb-6">
       <div className="grid md:grid-cols-2 gap-8">
         <div className="relative aspect-square rounded-2xl bg-gradient-to-br from-indigo-50 to-violet-100 dark:from-gray-800 dark:to-gray-700 flex items-center justify-center text-7xl overflow-hidden shadow-sm">
-          {product.images?.[0] ? <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" /> : "📦"}
+          {product.images?.[0] ? <img src={getImageUrl(product.images[0])} alt={product.name} className="w-full h-full object-cover" /> : "📦"}
           {product.price > price && (
             <span className="absolute top-3 left-3 bg-gradient-to-br from-red-500 to-orange-500 text-white text-xs font-extrabold px-3 py-1 rounded-lg shadow-md">
               {Math.round((1 - price / product.price) * 100)}% OFF

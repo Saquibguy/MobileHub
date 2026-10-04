@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { EmptyState } from "../components/Common";
 import { Minus, Plus, Trash2 } from "lucide-react";
+import { getImageUrl } from "../utils/getImageUrl";
 
 export default function CartPage() {
   const { cart, updateCartItem, removeCartItem } = useCart();
@@ -25,7 +26,7 @@ export default function CartPage() {
           return (
             <div key={item._id} className="card p-3 flex items-center gap-3">
               <div className="w-16 h-16 rounded-xl bg-indigo-50 dark:bg-gray-800 flex items-center justify-center text-2xl shrink-0 overflow-hidden">
-                {p.images?.[0] ? <img src={p.images[0]} className="w-full h-full object-cover" /> : "📦"}
+                {p.images?.[0] ? <img src={getImageUrl(p.images[0])} className="w-full h-full object-cover" /> : "📦"}
               </div>
               <div className="flex-1 min-w-0">
                 <Link to={`/products/${p.slug || p._id}`} className="font-semibold text-sm line-clamp-1">{p.name}</Link>

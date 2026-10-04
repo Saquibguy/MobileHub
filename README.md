@@ -86,7 +86,7 @@ CLIENT_URL=http://localhost:5173
 
 `client/.env`:
 ```
-VITE_API_URL=http://localhost:5000/api
+VITE_API_URL=https://mobilehub-backend-swwo.onrender.com/
 ```
 
 **Never commit your real `.env` files or secrets.** `.gitignore` already excludes them.

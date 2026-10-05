@@ -4,6 +4,7 @@ import { RatingStars, PriceDisplay } from "./Common";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { getImageUrl } from "../utils/getImageUrl";
 
 const CAT_ICON = "📦";
 
@@ -25,7 +26,12 @@ export default function ProductCard({ product }) {
       <Link to={`/products/${product.slug || product._id}`}>
         <div className="relative aspect-square rounded-xl mb-2 bg-gradient-to-br from-indigo-50 to-violet-100 dark:from-gray-800 dark:to-gray-700 flex items-center justify-center text-3xl overflow-hidden">
           {product.images?.[0] ? (
-            <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" loading="lazy" />
+            <img
+  src={getImageUrl(product.images[0])}
+  alt={product.name}
+  className="w-full h-full object-cover"
+  loading="lazy"
+/>
           ) : (
             CAT_ICON
           )}

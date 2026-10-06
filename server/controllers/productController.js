@@ -2,6 +2,24 @@ const Product = require("../models/Product");
 const Seller = require("../models/Seller");
 const asyncHandler = require("../utils/asyncHandler");
 const ApiError = require("../utils/ApiError");
+const cloudinary = require("../config/cloudinary");
+
+const uploadToCloudinary = (file) => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder: "mobilehub/products",
+        resource_type: "image",
+      },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result.secure_url);
+      }
+    );
+
+    stream.end(file.buffer);
+  });
+};
 
 // GET /api/products
 // Query params: search, category, brand, minPrice, maxPrice, rating, inStock,
@@ -74,7 +92,9 @@ const createProduct = asyncHandler(async (req, res) => {
   }
   if (!sellerId) throw new ApiError(400, "sellerId is required.");
 
-  const images = (req.files || []).map((f) => `/uploads/${f.filename}`);
+  const images = await Promise.all(
+  (req.files || []).map((file) => uploadToCloudinary(file))
+);
   const product = await Product.create({ ...req.body, sellerId, images: images.length ? images : req.body.images || [] });
   res.status(201).json({ success: true, data: product });
 });
@@ -99,8 +119,10 @@ const updateProduct = asyncHandler(async (req, res) => {
     if (req.body[field] !== undefined) product[field] = req.body[field];
   });
   if (req.files && req.files.length) {
-    product.images = req.files.map((f) => `/uploads/${f.filename}`);
-  }
+  product.images = await Promise.all(
+    req.files.map((file) => uploadToCloudinary(file))
+  );
+}
   await product.save();
   res.json({ success: true, data: product });
 });

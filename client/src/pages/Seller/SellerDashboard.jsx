@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { NavLink, Link, Routes, Route } from "react-router-dom";
-import { Plus } from "lucide-react";
-import { sellerService } from "../../services";
+import { Plus, Trash2 } from "lucide-react";
+import { sellerService, productService } from "../../services";
+import { useToast } from "../../context/ToastContext";
 import AddProduct from "./AddProduct";
 
 function DashCard({ label, value, accent = "from-indigo-500 to-violet-500" }) {
@@ -37,7 +38,27 @@ function Overview() {
 
 function ProductsTab() {
   const [products, setProducts] = useState(null);
-  useEffect(() => { sellerService.products().then((r) => setProducts(r.data)); }, []);
+  const [deletingId, setDeletingId] = useState(null);
+  const { showToast } = useToast();
+
+  const load = () => sellerService.products().then((r) => setProducts(r.data));
+  useEffect(() => { load(); }, []);
+
+  const handleDelete = async (product) => {
+    const confirmed = window.confirm(`Delete "${product.name}"? This cannot be undone.`);
+    if (!confirmed) return;
+    setDeletingId(product._id);
+    try {
+      await productService.remove(product._id);
+      showToast("Product deleted");
+      await load();
+    } catch (err) {
+      showToast(err.response?.data?.message || "Couldn't delete product.", "error");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   return (
     <div>
       <div className="flex justify-end mb-3">
@@ -52,12 +73,22 @@ function ProductsTab() {
       ) : (
         <div className="card overflow-x-auto">
           <table className="w-full text-sm">
-            <thead><tr className="text-left text-gray-400 text-xs"><th className="p-3">Name</th><th className="p-3">Price</th><th className="p-3">Stock</th></tr></thead>
+            <thead><tr className="text-left text-gray-400 text-xs"><th className="p-3">Name</th><th className="p-3">Price</th><th className="p-3">Stock</th><th className="p-3"></th></tr></thead>
             <tbody>
               {products.map((p) => (
                 <tr key={p._id} className="border-t border-gray-100 dark:border-gray-800">
                   <td className="p-3">{p.name}</td><td className="p-3">₹{p.price}</td>
                   <td className="p-3">{p.stock === 0 ? <span className="text-red-500 font-bold">Out</span> : p.stock < 20 ? <span className="text-amber-600 font-bold">{p.stock} (Low)</span> : p.stock}</td>
+                  <td className="p-3 text-right">
+                    <button
+                      onClick={() => handleDelete(p)}
+                      disabled={deletingId === p._id}
+                      className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors disabled:opacity-40"
+                      title="Delete product"
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
